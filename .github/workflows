@@ -1,0 +1,31 @@
+name: Build Cheat Engine
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lazarus
+        uses: gcarreno/setup-lazarus@v3
+        with:
+          lazarus-version: stable
+
+      - name: Show available build modes
+        shell: pwsh
+        run: Select-String -Path "Cheat Engine/cheatengine.lpi" -Pattern 'Name="' | Select-Object -First 30
+
+      - name: Build (64-bit)
+        shell: cmd
+        run: lazbuild --build-mode="Release 64-Bit" "Cheat Engine\cheatengine.lpi"
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: cheatengine-build
+          path: |
+            Cheat Engine/bin/
